@@ -1,0 +1,110 @@
+Now, I’ll be presenting on ‘Predicting Problematic Internet Use in Children and Adolescents.’ 
+
+In terms of content, here’s what I’ll cover:
+
+The main goal of this project is to predict how much children and teenagers may be struggling with problematic internet use. 
+By recognizing important patterns and factors, 
+this model can help parents and teachers spot kids who might be at higher risk, which could lead to early help and support.
+
+The dataset we’re using is from the Child Mind Institute. This dataset structure consists of three main files: 
+training, test, and a data dictionary file. The data dictionary provides a description of each feature. 
+The training file includes 3,960 samples with 82 features, while the test file contains only 58 features and 20 samples.
+
+Given the large number of features, the main task in preprocessing was to identify the most important features. The target variable 
+in this dataset is PCIAT_total, which represents the level of problematic internet use. However, the test data does not include PCIAT features, 
+and overall, the dataset contains over 100,000 missing values.
+
+Data preprocessing was a crucial step. It included handling missing values, normalizing the data, and selecting relevant features. 
+These steps ensure that our model can make accurate predictions by reducing noise and standardizing inputs.
+
+Each feature in this dataset corresponds to measurements taken using various instruments from the Healthy Brain Network (HBN). 
+There are 12 unique types of measurements or instruments in total. Now, I’ll briefly discuss the target:
+
+Parent-Child Internet Addiction Test (PCIAT): A 20-item scale assessing characteristics and behaviors linked with compulsive internet use, 
+including compulsivity, escapism, and dependency. The primary target variable, PCIAT_Total, summarizes the PCIAT results, which are categorized as:
+
+0: None
+1: Mild
+2: Moderate
+3: Severe
+
+Now it’s time to discuss how I selected the most relevant features for our model.
+
+I started by analyzing correlations between each feature and the target variable. In doing so, I found that most features have either 
+a weak positive or negative correlation with the target. I removed any features that had a correlation below -0.1 or above 0.1 with the target. 
+This left us with 18 features that were strongly related to the target variable.
+
+Next, I addressed missing values. First, I removed any samples that didn’t have values for the target feature. Then, I analyzed the remaining 
+features. Some features had more than 50% of their values missing, so I decided to drop these as well, leaving us with 16 final features to 
+use for building the model.
+
+In this summary, you can see the minimum, maximum, and percentage of missing data for each of the remaining features. From here, I needed to 
+address two main tasks: handling missing values and normalizing the data.
+
+To handle missing values:
+
+For features with less than 10% missing data:
+    For numerical features, I used the mean or median to fill in missing values.
+    For categorical features, I used the most common value (mode) to fill in gaps.
+For features with more than 10% missing data:
+    I created an indicator variable to mark when values were missing.
+Then, I filled missing values using mean or median for numerical features and mode for categorical features.
+After handling missing data, I applied Min-Max scaling to normalize all numerical features. This scales the data between 0 and 1, 
+which makes sure all features are on a consistent scale.
+
+This is the summary after handling missing values and normalization. Now, with a clean and normalized dataset, we’re ready to move on to building 
+the model.
+
+So, for selecting models for the dataset, I first trained the 
+XGBoost model because the dataset originally had more missing 
+values, and the test data also contained some missing values. 
+I trained the model that could handle missing values, which is 
+why I started with XGBoost. Then, I built it using the default 
+parameters, but I ended up with an overfitted model. After 
+identifying the hyperparameters, I retrained the model, and 
+here are the evaluation metrics. From these metrics, we can see 
+that I got a better model compared to before.
+
+Next, I selected four machine learning algorithms to train different models. I used data that had missing values handled for training. The four algorithms I selected are:
+
+Logistic Regression with a maximum of 1000 iterations to ensure convergence.
+Decision Tree Classifier.
+Random Forest Classifier.
+Naive Bayes Classifier (GaussianNB).
+I trained every model and got the following evaluation metrics. Now, let's look at the performance of each algorithm, starting with Logistic Regression. Here are my observations:
+
+It performs reasonably well with a weighted average F1-score of 0.58.
+It shows good precision and recall for class 0.0 but struggles with lower recall for other classes, especially class 3.0.
+The confusion matrix reveals a bias towards classifying instances as class 0.0.
+In conclusion, it performs moderately well on the majority of classes but struggles with imbalanced classes, leading to poor performance on minority classes (1.0, 2.0, 3.0).
+
+Next, the Decision Tree:
+
+Extremely high training accuracy suggests overfitting.
+Poor validation accuracy indicates that the model fails to generalize.
+The F1-scores for minority classes (1.0, 2.0, 3.0) are very low, indicating weak performance in these categories.
+So, it is not a suitable model for this dataset.
+
+Now, for the Random Forest:
+
+Similar to the Decision Tree, the model is overfitting with nearly perfect training accuracy.
+It performs better than the Decision Tree on validation data but still struggles with minority classes.
+The weighted average F1-score of 0.52 suggests that while the model performs well for class 0.0, its performance is weak for other classes.
+Random Forest offers a slight improvement over the Decision Tree but still overfits. It doesn't effectively handle the imbalanced data.
+
+Now, for Naive Bayes:
+
+It performs comparably across training and validation sets, showing no overfitting.
+The weighted average F1-score of 0.53 suggests reasonable performance, especially for class 0.0.
+Surprisingly, it recognizes class 3.0 instances better than other models, albeit with limited overall effectiveness.
+Naive Bayes performs consistently on both training and validation sets, but its simplistic assumptions limit its ability to handle complex patterns and imbalanced classes effectively.
+
+Finally, I selected the best model among them based on the evaluation performance metrics. The XGBoost model stands out for the following reasons:
+
+Robustness to Missing Data: XGBoost's ability to handle missing values natively and still achieve relatively high performance (especially the validation accuracy of 0.618) makes it an excellent model, especially since the missing values were not imputed before training.
+High Validation Accuracy: Although Logistic Regression showed a slightly higher validation accuracy (0.6259), XGBoost's performance without imputation is a strong point in its favor, as it demonstrates its robustness and flexibility in real-world scenarios where missing data might be common.
+Higher Training Accuracy: XGBoost also has higher training accuracy compared to Logistic Regression, indicating that it has learned better patterns from the data.
+In conclusion, while Logistic Regression performs well after imputing missing values, XGBoost stands out as the better choice due to its robustness with missing data, better handling of feature interactions, and higher training accuracy. Given that XGBoost was able to achieve high validation accuracy without any imputation, it is likely to be more effective in scenarios with missing data, making it the best model overall in this case.
+
+Thank you!
+
